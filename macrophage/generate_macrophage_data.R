@@ -12,6 +12,7 @@ library(iSEEpathways)
 library(limma)
 library(edgeR)
 library(fgsea)
+library(BiocFileCache)
 
 dir <- system.file("extdata", package = "macrophage")
 coldata <- read.csv(file.path(dir, "coldata.csv"))[, c(1, 2, 3, 5)]
@@ -94,3 +95,21 @@ sce <- registerAppOptions(sce, Pathways.map.functions = list(GO = map_GO))
 sce <- registerAppOptions(sce, PathwaysTable.select.details = go_details)
 
 saveRDS(sce, "macrophage_sce.rds")
+
+# Test
+bfc <- BiocFileCache(cache = tempdir())
+
+dataset_fun <- function() {
+  list(list(id="Macrophage",
+            title="Macrophage",
+            uri="https://raw.githubusercontent.com/csoneson/iSEE-example-data/refs/heads/main/macrophage/macrophage_sce.rds",
+            description="Macrophage Data.\n"))
+}
+initial_fun <- function() {
+  list(list(id="Macrophage_Config1",
+            title="InitialConfig1",
+            dataset="Macrophage",
+            uri="https://raw.githubusercontent.com/csoneson/iSEE-example-data/refs/heads/main/macrophage/macrophage_initial_1.R",
+            description="DE results"))
+}
+iSEEindex(bfc, FUN.datasets=dataset_fun, FUN.initial=initial_fun)
